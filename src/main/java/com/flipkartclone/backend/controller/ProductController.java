@@ -43,9 +43,10 @@ public class ProductController {
     // ADMIN (POST/PUT/DELETE) — protected by SecurityConfig rules below
     // For Add Product
   //  @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product add(@RequestBody Product p ){
+    public Product add(@RequestBody Product p) {
         return service.add(p);
     }
 

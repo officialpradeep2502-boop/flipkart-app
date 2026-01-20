@@ -35,47 +35,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String header = request.getHeader("Authorization");
 
-        if (header != null) {
-            String token = null;
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
 
-            // Accept both 'Bearer <token>' or just the raw token
-            if (header.startsWith("Bearer ")) {
-                token = header.substring(7).trim();
-            } else if (!header.isBlank()) {
-                token = header.trim();
-            }
+            try {
+                Claims claims = jwtUtil.parseClaims(token);
 
-            if (token != null && !token.isEmpty()) {
-                try {
-                    Claims claims = jwtUtil.parseClaims(token);
+                String email = claims.getSubject();
+                String role = claims.get("role", String.class); // ROLE_ADMIN
 
-                    String email = claims.getSubject();
-                    String role = claims.get("role", String.class); // ROLE_ADMIN
-                    logger.info("JWT ROLE = " + role);
+                logger.info("JWT ROLE = " + role);
 
-                    if (email != null &&
-                            SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (email != null &&
+                        SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                        List<SimpleGrantedAuthority> authorities =
-                                role != null
-                                        ? List.of(new SimpleGrantedAuthority(role))
-                                        : List.of();
+                    List<SimpleGrantedAuthority> authorities =
+                            List.of(new SimpleGrantedAuthority(role));
 
-                        UsernamePasswordAuthenticationToken auth =
-                                new UsernamePasswordAuthenticationToken(
-                                        email, null, authorities);
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    email, null, authorities);
 
-                        auth.setDetails(
-                                new WebAuthenticationDetailsSource()
-                                        .buildDetails(request));
+                    auth.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request));
 
-                        SecurityContextHolder.getContext()
-                                .setAuthentication(auth);
-                    }
-
-                } catch (Exception e) {
-                    logger.warn("Invalid/Expired JWT : " + e.getMessage());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
                 }
+
+            } catch (Exception e) {
+                logger.warn("Invalid/Expired JWT : " + e.getMessage());
             }
         }
 
