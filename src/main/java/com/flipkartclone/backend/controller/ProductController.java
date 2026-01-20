@@ -1,8 +1,10 @@
 package com.flipkartclone.backend.controller;
 
 
+import com.flipkartclone.backend.dto.ProductRequestDto;
 import com.flipkartclone.backend.entity.Product;
 import com.flipkartclone.backend.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -46,8 +48,8 @@ public class ProductController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product add(@RequestBody Product p) {
-        return service.add(p);
+    public Product add(@Valid @RequestBody ProductRequestDto dto) {
+        return service.add(dto);
     }
 
     // For Update Product

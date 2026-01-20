@@ -1,8 +1,10 @@
 package com.flipkartclone.backend.service;
 
 
+import com.flipkartclone.backend.dto.ProductRequestDto;
 import com.flipkartclone.backend.entity.Product;
 import com.flipkartclone.backend.repository.ProductRepository;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +19,14 @@ public class ProductService {
 
 
 
-    public Product add(Product p ){
+    public Product add(@Valid ProductRequestDto dto ){
+        Product p = Product.builder()
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .price(dto.getPrice())
+                .category(dto.getCategory())
+                .stock(dto.getStock())
+                .build();
         return repo.save(p);
     }
     public Product update (Long id, Product p){
