@@ -10,9 +10,10 @@ import java.math.BigDecimal;
 @Data
 public class ProductRequestDto {
 
-    @NotBlank
+    @NotBlank(message = "Name is required")
     private String name;
 
+    @NotBlank(message = "Description is required")
     private String description;
 
     @NotNull

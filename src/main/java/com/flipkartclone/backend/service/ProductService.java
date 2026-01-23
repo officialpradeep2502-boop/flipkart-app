@@ -3,8 +3,14 @@ package com.flipkartclone.backend.service;
 
 import com.flipkartclone.backend.dto.ProductRequestDto;
 import com.flipkartclone.backend.entity.Product;
+import com.flipkartclone.backend.exception.ProductNotFoundException;
 import com.flipkartclone.backend.repository.ProductRepository;
 import jakarta.validation.Valid;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +21,16 @@ public class ProductService {
     private final ProductRepository repo;
     public  ProductService(ProductRepository repo){
         this.repo =repo;
+    }
+
+    public Page<Product> getAllProductsPaged(int page, int size, String sortBy, String direction) {
+
+        Sort sort =  direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return repo.findAll(pageable);
     }
 
 
@@ -47,7 +63,7 @@ public class ProductService {
     }
 
     public Product byId(Long id){
-        return repo.findById(id).orElseThrow(()-> new RuntimeException("Product Not found"));
+        return repo.findById(id).orElseThrow(()-> new ProductNotFoundException("Product Not found"));
     }
      public List<Product> byCategory(String c){
         return repo.findByCategoryIgnoreCase(c);

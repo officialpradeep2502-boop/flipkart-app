@@ -5,6 +5,7 @@ import com.flipkartclone.backend.dto.ProductRequestDto;
 import com.flipkartclone.backend.entity.Product;
 import com.flipkartclone.backend.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class ProductController {
     }
 
     // User + ADMIN (No Restriction)
-    @GetMapping
+    @GetMapping("/all")
     public List<Product> all(){
         return service.all();
     }
@@ -41,6 +42,15 @@ public class ProductController {
         return service.search(q);
     }
 
+    @GetMapping
+    public Page<Product> getAllProductsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam (defaultValue = "10") int size,
+            @RequestParam (defaultValue = "id") String sortBy,
+            @RequestParam (defaultValue = "asc") String direction
+    ){
+        return service.getAllProductsPaged(page, size, sortBy, direction);
+    }
 
     // ADMIN (POST/PUT/DELETE) — protected by SecurityConfig rules below
     // For Add Product
