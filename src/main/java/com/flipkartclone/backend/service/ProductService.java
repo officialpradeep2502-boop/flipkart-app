@@ -23,6 +23,7 @@ public class ProductService {
         this.repo =repo;
     }
 
+    // Pagination + Sorting
     public Page<Product> getAllProductsPaged(int page, int size, String sortBy, String direction) {
 
         Sort sort =  direction.equalsIgnoreCase("desc")
@@ -33,8 +34,7 @@ public class ProductService {
         return repo.findAll(pageable);
     }
 
-
-
+    // Add Product
     public Product add(@Valid ProductRequestDto dto ){
         Product p = Product.builder()
                 .name(dto.getName())
@@ -45,6 +45,8 @@ public class ProductService {
                 .build();
         return repo.save(p);
     }
+
+    // Update Product
     public Product update (Long id, Product p){
         Product db = repo.findById(id).orElseThrow(()-> new RuntimeException("Product Not Found"));
         db.setName(p.getName());
@@ -54,25 +56,35 @@ public class ProductService {
         db.setBrand(p.getBrand());
         db.setImageUrl(p.getImageUrl());
         db.setStock(p.getStock());
-        return repo.save(db);
 
+        return repo.save(db);
     }
 
+    // Get All Products (no pagination)
     public List<Product> all(){
         return repo.findAll();
     }
 
+    // Get Product by Id
     public Product byId(Long id){
-        return repo.findById(id).orElseThrow(()-> new ProductNotFoundException("Product Not found"));
+        return repo.findById(id).orElseThrow(()->
+                new ProductNotFoundException("Product Not found"));
     }
+    //Get By Category
      public List<Product> byCategory(String c){
         return repo.findByCategoryIgnoreCase(c);
      }
+
+     // Search Products by Name
      public List<Product> search(String q){
         return repo.findByNameContainingIgnoreCase(q);
      }
 
+    // Delete Product
     public void delete(Long id) {
+
+        Product product = repo.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product Not Found with id: " + id));
         repo.deleteById(id);
     }
 }

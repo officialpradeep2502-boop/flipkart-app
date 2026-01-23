@@ -27,6 +27,7 @@ public class Product {
     private String category;  // mobile
     private String brand;
     private String imageUrl;
+
     @Column(nullable = false)
     private Integer stock;  // inventory
 
