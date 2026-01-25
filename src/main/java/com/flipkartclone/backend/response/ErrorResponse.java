@@ -1,4 +1,4 @@
-package com.flipkartclone.backend.exception;
+package com.flipkartclone.backend.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

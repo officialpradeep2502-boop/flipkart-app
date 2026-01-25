@@ -1,16 +1,11 @@
 package com.flipkartclone.backend.service;
 
-
 import com.flipkartclone.backend.dto.ProductRequestDto;
 import com.flipkartclone.backend.entity.Product;
 import com.flipkartclone.backend.exception.ProductNotFoundException;
 import com.flipkartclone.backend.repository.ProductRepository;
 import jakarta.validation.Valid;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,14 +14,17 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository repo;
-    public  ProductService(ProductRepository repo){
-        this.repo =repo;
+
+    public ProductService(ProductRepository repo) {
+        this.repo = repo;
     }
 
-    // Pagination + Sorting
+    // ===============================
+    // 1️⃣ Pagination + Sorting
+    // ===============================
     public Page<Product> getAllProductsPaged(int page, int size, String sortBy, String direction) {
 
-        Sort sort =  direction.equalsIgnoreCase("desc")
+        Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
 
@@ -34,57 +32,81 @@ public class ProductService {
         return repo.findAll(pageable);
     }
 
-    // Add Product
-    public Product add(@Valid ProductRequestDto dto ){
-        Product p = Product.builder()
+    // ===============================
+    // 2️⃣ Add Product
+    // ===============================
+    public Product add(@Valid ProductRequestDto dto) {
+
+        Product product = Product.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
                 .category(dto.getCategory())
                 .stock(dto.getStock())
                 .build();
-        return repo.save(p);
+
+        return repo.save(product);
     }
 
-    // Update Product
-    public Product update (Long id, Product p){
-        Product db = repo.findById(id).orElseThrow(()-> new RuntimeException("Product Not Found"));
-        db.setName(p.getName());
-        db.setDescription(p.getDescription());
-        db.setPrice(p.getPrice());
-        db.setCategory(p.getCategory());
-        db.setBrand(p.getBrand());
-        db.setImageUrl(p.getImageUrl());
-        db.setStock(p.getStock());
+    // ===============================
+    // 3️⃣ Update Product
+    // ===============================
+    public Product update(Long id, Product p) {
 
-        return repo.save(db);
+        Product dbProduct = repo.findById(id)
+                .orElseThrow(() ->
+                        new ProductNotFoundException("Product not found with id: " + id));
+
+        dbProduct.setName(p.getName());
+        dbProduct.setDescription(p.getDescription());
+        dbProduct.setPrice(p.getPrice());
+        dbProduct.setCategory(p.getCategory());
+        dbProduct.setBrand(p.getBrand());
+        dbProduct.setImageUrl(p.getImageUrl());
+        dbProduct.setStock(p.getStock());
+
+        return repo.save(dbProduct);
     }
 
-    // Get All Products (no pagination)
-    public List<Product> all(){
+    // ===============================
+    // 4️⃣ Get All Products (No Pagination)
+    // ===============================
+    public List<Product> all() {
         return repo.findAll();
     }
 
-    // Get Product by Id
-    public Product byId(Long id){
-        return repo.findById(id).orElseThrow(()->
-                new ProductNotFoundException("Product Not found"));
+    // ===============================
+    // 5️⃣ Get Product by ID
+    // ===============================
+    public Product byId(Long id) {
+        return repo.findById(id)
+                .orElseThrow(() ->
+                        new ProductNotFoundException("Product not found with id: " + id));
     }
-    //Get By Category
-     public List<Product> byCategory(String c){
-        return repo.findByCategoryIgnoreCase(c);
-     }
 
-     // Search Products by Name
-     public List<Product> search(String q){
-        return repo.findByNameContainingIgnoreCase(q);
-     }
+    // ===============================
+    // 6️⃣ Get Products by Category
+    // ===============================
+    public List<Product> byCategory(String category) {
+        return repo.findByCategoryIgnoreCase(category);
+    }
 
-    // Delete Product
+    // ===============================
+    // 7️⃣ Search Products by Name
+    // ===============================
+    public List<Product> search(String keyword) {
+        return repo.findByNameContainingIgnoreCase(keyword);
+    }
+
+    // ===============================
+    // 8️⃣ Delete Product
+    // ===============================
     public void delete(Long id) {
 
         Product product = repo.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product Not Found with id: " + id));
-        repo.deleteById(id);
+                .orElseThrow(() ->
+                        new ProductNotFoundException("Product not found with id: " + id));
+
+        repo.delete(product);
     }
 }

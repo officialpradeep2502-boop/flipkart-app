@@ -1,5 +1,6 @@
 package com.flipkartclone.backend.dto;
 
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,13 +19,17 @@ public class ProductRequestDto {
 
     @NotNull
     @Positive
+    @Min(value = 1, message = "Price must be greater than 0")
     private BigDecimal price;
 
-    @NotBlank
+    @NotBlank(message = "Category is required")
     private String category;
 
 
     @NotNull
     @Positive
+    @Min(value = 0, message = "Stock cannot be negative")
     private Integer stock;
+
+
 }

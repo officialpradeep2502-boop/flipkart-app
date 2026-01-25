@@ -1,15 +1,18 @@
 package com.flipkartclone.backend.controller;
 
-
 import com.flipkartclone.backend.dto.ProductRequestDto;
 import com.flipkartclone.backend.entity.Product;
+import com.flipkartclone.backend.response.SuccessResponse;
 import com.flipkartclone.backend.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -17,62 +20,146 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService service;
-    public ProductController(ProductService service){
+
+    public ProductController(ProductService service) {
         this.service = service;
     }
 
-    // User + ADMIN (No Restriction)
+    // ===================== USER + ADMIN =====================
+
     @GetMapping("/all")
-    public List<Product> all(){
-        return service.all();
+    public ResponseEntity<SuccessResponse<List<Product>>> all(HttpServletRequest request) {
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        LocalDateTime.now(),
+                        HttpStatus.OK.value(),
+                        "All products fetched successfully",
+                        service.all(),
+                        request.getRequestURI()
+                )
+        );
     }
 
     @GetMapping("/{id}")
-    public Product byId(@PathVariable Long id){
-        return service.byId(id);
+    public ResponseEntity<SuccessResponse<Product>> byId(
+            @PathVariable Long id,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        LocalDateTime.now(),
+                        HttpStatus.OK.value(),
+                        "Product fetched successfully",
+                        service.byId(id),
+                        request.getRequestURI()
+                )
+        );
     }
 
     @GetMapping("/category/{cat}")
-    public  List<Product> byCategory(@PathVariable String cat){
-        return service.byCategory(cat);
+    public ResponseEntity<SuccessResponse<List<Product>>> byCategory(
+            @PathVariable String cat,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        LocalDateTime.now(),
+                        HttpStatus.OK.value(),
+                        "Products fetched by category",
+                        service.byCategory(cat),
+                        request.getRequestURI()
+                )
+        );
     }
 
     @GetMapping("/search")
-    public List<Product> search(@RequestParam String q){
-        return service.search(q);
+    public ResponseEntity<SuccessResponse<List<Product>>> search(
+            @RequestParam String q,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        LocalDateTime.now(),
+                        HttpStatus.OK.value(),
+                        "Products search result",
+                        service.search(q),
+                        request.getRequestURI()
+                )
+        );
     }
 
     @GetMapping
-    public Page<Product> getAllProductsPaged(
+    public ResponseEntity<SuccessResponse<Page<Product>>> getAllProductsPaged(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam (defaultValue = "10") int size,
-            @RequestParam (defaultValue = "id") String sortBy,
-            @RequestParam (defaultValue = "asc") String direction
-    ){
-        return service.getAllProductsPaged(page, size, sortBy, direction);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        LocalDateTime.now(),
+                        HttpStatus.OK.value(),
+                        "Products fetched with pagination",
+                        service.getAllProductsPaged(page, size, sortBy, direction),
+                        request.getRequestURI()
+                )
+        );
     }
 
-    // ADMIN (POST/PUT/DELETE) — protected by SecurityConfig rules below
-    // For Add Product
-  //  @PreAuthorize("hasRole('ADMIN')")
+    // ===================== ADMIN ONLY =====================
+
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Product add(@Valid @RequestBody ProductRequestDto dto) {
-        return service.add(dto);
+    public ResponseEntity<SuccessResponse<Product>> add(
+            @Valid @RequestBody ProductRequestDto dto,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                new SuccessResponse<>(
+                        LocalDateTime.now(),
+                        HttpStatus.CREATED.value(),
+                        "Product created successfully",
+                        service.add(dto),
+                        request.getRequestURI()
+                )
+        );
     }
 
-    // For Update Product
-  //  @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}")
-    public Product update(@PathVariable Long id, @RequestBody Product p){
-        return service.update(id, p);
-
+    public ResponseEntity<SuccessResponse<Product>> update(
+            @PathVariable Long id,
+            @RequestBody Product p,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        LocalDateTime.now(),
+                        HttpStatus.OK.value(),
+                        "Product updated successfully",
+                        service.update(id, p),
+                        request.getRequestURI()
+                )
+        );
     }
 
-    // For Delete Product
-  // @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) { service.delete(id); }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<SuccessResponse<Void>> delete(
+            @PathVariable Long id,
+            HttpServletRequest request
+    ) {
+        service.delete(id);
 
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        LocalDateTime.now(),
+                        HttpStatus.OK.value(),
+                        "Product deleted successfully",
+                        null,
+                        request.getRequestURI()
+                )
+        );
+    }
 }
