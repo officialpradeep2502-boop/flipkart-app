@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        JAVA_HOME = "/Users/pradeepverma/Library/Java/JavaVirtualMachines/ms-17.0.17/Contents/Home"
+        PATH = "${JAVA_HOME}/bin:${PATH}"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -12,15 +17,10 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    export JAVA_HOME=$(/usr/libexec/java_home -v 17)
-                    export PATH=$JAVA_HOME/bin:$PATH
-
-                    echo "JAVA_HOME=$JAVA_HOME"
-                    which java
-                    java -version
-
-                    chmod +x mvnw
-                    ./mvnw clean package -DskipTests
+                   echo "Using JAVA_HOME=$JAVA_HOME"
+                   java -version
+                   chmod +x mvnw
+                   ./mvnw clean package -DskipTests
                 '''
             }
         }
