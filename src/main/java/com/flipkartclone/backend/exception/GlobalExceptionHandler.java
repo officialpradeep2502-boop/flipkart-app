@@ -24,8 +24,7 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
 
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult()
-                .getFieldErrors()
+        ex.getBindingResult().getFieldErrors()
                 .forEach(err ->
                         errors.put(err.getField(), err.getDefaultMessage())
                 );
@@ -50,9 +49,9 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
-                "Product Not Found",
+                ex.getMessage(),
                 request.getRequestURI(),
-                Map.of("error", ex.getMessage())
+                null
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -67,15 +66,15 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
-                "Page Not Found",
+                ex.getMessage(),
                 request.getRequestURI(),
-                Map.of("error", ex.getMessage())
+                null
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // 4️⃣ Illegal Argument (Business logic)
+    // 4️⃣ Illegal Argument (Business Logic)
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(
             IllegalArgumentException ex,
@@ -84,9 +83,9 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
+                ex.getMessage(),
                 request.getRequestURI(),
-                Map.of("error", ex.getMessage())
+                null
         );
 
         return ResponseEntity.badRequest().body(response);
@@ -109,7 +108,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-    // 6️⃣ Forbidden (Access denied)
+    // 6️⃣ Forbidden (Access Denied)
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(
             AccessDeniedException ex,
@@ -126,12 +125,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
-    // 7️⃣ Generic Exception (Fallback)
+    // 7️⃣ Generic Exception (Fallback – LAST)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex,
             HttpServletRequest request) {
 
+        System.out.println(ex);
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

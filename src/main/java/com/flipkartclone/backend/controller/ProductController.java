@@ -4,6 +4,7 @@ import com.flipkartclone.backend.dto.ProductRequestDto;
 import com.flipkartclone.backend.entity.Product;
 import com.flipkartclone.backend.response.SuccessResponse;
 import com.flipkartclone.backend.service.ProductService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -12,9 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -27,6 +33,10 @@ public class ProductController {
 
     // ===================== USER + ADMIN =====================
 
+    @Operation(summary = "Get all products (without pagination)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Products fetched successfully")
+    })
     @GetMapping("/all")
     public ResponseEntity<SuccessResponse<List<Product>>> all(HttpServletRequest request) {
         return ResponseEntity.ok(
@@ -40,6 +50,11 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Get product by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Product fetched successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<SuccessResponse<Product>> byId(
             @PathVariable Long id,
@@ -56,6 +71,10 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Get products by category")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Products fetched by category")
+    })
     @GetMapping("/category/{cat}")
     public ResponseEntity<SuccessResponse<List<Product>>> byCategory(
             @PathVariable String cat,
@@ -72,6 +91,10 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Search products by name")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Search results returned")
+    })
     @GetMapping("/search")
     public ResponseEntity<SuccessResponse<List<Product>>> search(
             @RequestParam String q,
@@ -88,6 +111,10 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Get products with pagination and sorting")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Products fetched with pagination")
+    })
     @GetMapping
     public ResponseEntity<SuccessResponse<Page<Product>>> getAllProductsPaged(
             @RequestParam(defaultValue = "0") int page,
@@ -109,7 +136,13 @@ public class ProductController {
 
     // ===================== ADMIN ONLY =====================
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @Operation(summary = "Create new product (ADMIN only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Product created successfully"),
+            @ApiResponse(responseCode = "400", description = "Validation failed"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<SuccessResponse<Product>> add(
             @Valid @RequestBody ProductRequestDto dto,
@@ -126,7 +159,12 @@ public class ProductController {
         );
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @Operation(summary = "Update product (ADMIN only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Product updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found")
+    })
+   @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<SuccessResponse<Product>> update(
             @PathVariable Long id,
@@ -144,6 +182,11 @@ public class ProductController {
         );
     }
 
+    @Operation(summary = "Delete product (ADMIN only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Product deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Product not found")
+    })
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<SuccessResponse<Void>> delete(

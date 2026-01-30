@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 @Configuration
 @EnableMethodSecurity
 @EnableWebSecurity
@@ -31,7 +32,6 @@ public class SecurityConfig {
         };
     }
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -43,15 +43,28 @@ public class SecurityConfig {
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Swagger URl
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "swagger-ui.html").permitAll()
-                        .requestMatchers("/auth/login", "/auth/signup").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/products")
-                        .hasAuthority("ROLE_ADMIN")
+
+                        // ✅ Swagger URLs (VERY IMPORTANT)
+
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/actuator/**"
+                        ).permitAll()
+
+                        // Auth APIs
+//                        .requestMatchers("/auth/login", "/auth/signup").permitAll()
+
+                        // Admin only
+//                        .requestMatchers(HttpMethod.POST, "/products").hasAuthority("ROLE_ADMIN")
+
+                        // Everything else
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 }
