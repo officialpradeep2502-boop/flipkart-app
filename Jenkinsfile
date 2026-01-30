@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        JAVA_HOME = "/opt/homebrew/Cellar/openjdk@17/17.0.10/libexec/openjdk.jdk/Contents/Home"
-        PATH = "${JAVA_HOME}/bin:${PATH}"
-    }
-
     stages {
 
         stage('Checkout') {
@@ -17,10 +12,15 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                   echo "JAVA_HOME=$JAVA_HOME"
-                   java -version
-                   chmod +x mvnw
-                   ./mvnw clean package -DskipTests
+                    export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+                    export PATH=$JAVA_HOME/bin:$PATH
+
+                    echo "JAVA_HOME=$JAVA_HOME"
+                    which java
+                    java -version
+
+                    chmod +x mvnw
+                    ./mvnw clean package -DskipTests
                 '''
             }
         }
