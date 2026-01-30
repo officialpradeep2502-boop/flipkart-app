@@ -1,8 +1,9 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'jdk17'
+    environment {
+        JAVA_HOME = "/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home"
+        PATH = "${JAVA_HOME}/bin:${PATH}"
     }
 
     stages {
@@ -16,6 +17,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
+                   java -version
                    chmod +x mvnw
                    ./mvnw clean package -DskipTests
                 '''
