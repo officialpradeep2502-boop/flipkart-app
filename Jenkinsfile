@@ -37,9 +37,15 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                   /Applications/Docker.app/Contents/Resources/bin/docker --version
-           /Applications/Docker.app/Contents/Resources/bin/docker build -t flipkart-backend:latest .
+                  export DOCKER_CONFIG=/tmp/.docker
+           mkdir -p $DOCKER_CONFIG
 
+           /Applications/Docker.app/Contents/Resources/bin/docker --version
+
+           /Applications/Docker.app/Contents/Resources/bin/docker build \
+             --pull=false \
+             -t flipkart-backend:latest .
+ 
                 '''
             }
         }
