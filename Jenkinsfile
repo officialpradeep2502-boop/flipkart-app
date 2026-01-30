@@ -14,9 +14,9 @@ pipeline {
             }
         }
 
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                echo 'Code checkout successful'
+                checkout scm
             }
         }
 
@@ -25,6 +25,7 @@ pipeline {
                 sh '''
                    echo "Using JAVA_HOME=$JAVA_HOME"
                    java -version
+                   ls -la
                    chmod +x mvnw
                    ./mvnw clean package -DskipTests
                 '''
