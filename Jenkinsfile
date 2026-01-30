@@ -6,6 +6,7 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 echo 'Code checkout successful'
@@ -14,7 +15,10 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh './mvnw clean package -DskipTests'
+                sh '''
+                   chmod +x mvnw
+                   ./mvnw clean package -DskipTests
+                '''
             }
         }
     }
