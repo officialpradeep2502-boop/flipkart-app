@@ -1,17 +1,30 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'jdk17'
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checkout successful'
+                echo 'Code checkout successful'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh './mvnw clean package -DskipTests'
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build successful 🎉'
+        }
+        failure {
+            echo 'Build failed ❌'
         }
     }
 }
