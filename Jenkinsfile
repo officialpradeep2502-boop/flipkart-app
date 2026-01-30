@@ -4,6 +4,7 @@ pipeline {
     environment {
         JAVA_HOME = "/Users/pradeepverma/Library/Java/JavaVirtualMachines/ms-17.0.17/Contents/Home"
         PATH = "${JAVA_HOME}/bin:${PATH}"
+        IMAGE_NAME = "flipkart-backend:latest"
     }
 
     stages {
@@ -20,7 +21,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build (Maven)') {
             steps {
                 sh '''
                    echo "Using JAVA_HOME=$JAVA_HOME"
@@ -31,11 +32,21 @@ pipeline {
                 '''
             }
         }
+
+        // 🔥 YAHI PAR DOCKER STAGE ADD HOTA HAI
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                   docker --version
+                   docker build -t $IMAGE_NAME .
+                '''
+            }
+        }
     }
 
     post {
         success {
-            echo 'Build successful 🎉'
+            echo 'CI + Docker build successful 🎉'
         }
         failure {
             echo 'Build failed ❌'
